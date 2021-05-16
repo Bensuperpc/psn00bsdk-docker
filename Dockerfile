@@ -1,11 +1,12 @@
-FROM alpine:3.12 AS toolchain
-MAINTAINER Jakub Czekański
-# Based on https://github.com/root670/docker-psxsdk
+FROM alpine:latest AS toolchain
+LABEL maintainer="bensuperpc@gmail.com"
+LABEL version="0.1"
+# Based on https://github.com/root670/docker-psxsdk and https://github.com/JaCzekanski/psn00bsdk-docker
 
-ARG PSN00BSDK_COMMIT=b0659ad85b7aa6e74d2c3eac29281636a0c2bc5e
-ARG THREADS=1
-ARG BINUTILS_VERSION=2.35.1
-ARG GCC_VERSION=10.2.0
+ARG PSN00BSDK_COMMIT=da79082d2c5e0dcbc899a359f6f49ec8cca90d66
+ARG THREADS=12
+ARG BINUTILS_VERSION=2.36
+ARG GCC_VERSION=11.1.0
 
 ENV PATH $PATH:/opt/psn00bsdk/tools/bin
 
@@ -81,7 +82,7 @@ ENV PATH $PATH:/usr/local/mipsel-unknown-elf/bin
 RUN cd /opt && \
   git clone --depth 1 https://github.com/Lameguy64/PSn00bSDK.git psn00bsdk && \
   cd psn00bsdk && \
-  git reset --hard ${PSN00BSDK_COMMIT} && \
+#  git reset --hard ${PSN00BSDK_COMMIT} && \
   cd libpsn00b && \
   make -j ${THREADS} && \
   make install && \
@@ -89,7 +90,7 @@ RUN cd /opt && \
   make -j ${THREADS} && \
   make install
 
-FROM alpine:3.12
+FROM alpine:latest
 ENV PATH $PATH:/opt/psn00bsdk/tools/bin:/usr/local/mipsel-unknown-elf/bin
 ENV PSN00BSDK /opt/psn00bsdk/
 WORKDIR /build

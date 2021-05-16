@@ -15,6 +15,9 @@ Current directory will be shared with Docker container containing MIPS GCC and p
 
 ## Author
 
-Jakub Czekański
+
 
 Based on [docker-psxsdk](https://github.com/root670/docker-psxsdk) by [root670](https://github.com/root670).
+Based on [psn00bsdk-docker](https://github.com/JaCzekanski/psn00bsdk-docker) by [Jakub Czekański](https://github.com/JaCzekanski)
+
+

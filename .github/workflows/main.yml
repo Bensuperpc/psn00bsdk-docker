@@ -1,0 +1,33 @@
+name: psn00bsdk-docker
+
+on:
+  push:
+    branches:
+    - 'main'
+    - 'master'
+    - 'dev'
+    paths-ignore:
+      - '**/README.md'
+  pull_request:
+    branches:
+    - '*'
+  schedule:
+    - cron: '0 7 * * 1'  # every monday at 7:00 https://crontab.guru/#0_7_*_*_1
+
+jobs:
+  image:
+    name: build and deploy
+    runs-on: ubuntu-20.04
+    steps:
+      - name: "📥 Checkout Code"
+        uses: actions/checkout@v2.2.0
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0
+      - name: "🛠️ Build"
+        run: docker build -t bensuperpc/psn00bsdk:$(date +%Y-%m-%d) -t bensuperpc/psn00bsdk:latest .
+      - name: "📤 Upload to hub.docker.com"
+        if: ${{ github.ref == 'refs/heads/master' }}
+        run: |
+            docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASS }}
+            docker image push bensuperpc/psn00bsdk --all-tags
