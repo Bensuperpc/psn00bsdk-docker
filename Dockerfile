@@ -1,6 +1,8 @@
-FROM alpine:latest AS toolchain
-LABEL maintainer="bensuperpc@gmail.com"
-LABEL version="0.1"
+ARG DOCKER_IMAGE=alpine:latest 
+FROM $DOCKER_IMAGE AS toolchain
+
+LABEL author="Bensuperpc <bensuperpc@gmail.com>"
+LABEL mantainer="Bensuperpc <bensuperpc@gmail.com>"
 # Based on https://github.com/root670/docker-psxsdk and https://github.com/JaCzekanski/psn00bsdk-docker
 
 ARG PSN00BSDK_COMMIT=da79082d2c5e0dcbc899a359f6f49ec8cca90d66
@@ -90,7 +92,12 @@ RUN cd /opt && \
   make -j ${THREADS} && \
   make install
 
-FROM alpine:latest
+ARG DOCKER_IMAGE=alpine:latest 
+FROM $DOCKER_IMAGE AS runtime
+
+ARG VERSION="1.0.0"
+ENV VERSION=$VERSION
+
 ENV PATH $PATH:/opt/psn00bsdk/tools/bin:/usr/local/mipsel-unknown-elf/bin
 ENV PSN00BSDK /opt/psn00bsdk/
 WORKDIR /build
@@ -98,3 +105,17 @@ RUN apk add --no-cache make tinyxml2 musl mpc1-dev mpfr-dev
 COPY --from=toolchain /usr/local/mipsel-unknown-elf /usr/local/mipsel-unknown-elf
 COPY --from=toolchain /opt/psn00bsdk /opt/psn00bsdk
 ADD sdk-common.mk /opt/psn00bsdk/sdk-common.mk
+
+ARG BUILD_DATE
+ARG VCS_REF
+
+LABEL org.label-schema.schema-version="1.0" \
+	  org.label-schema.build-date=$BUILD_DATE \
+	  org.label-schema.name="bensuperpc/psn00bsdk" \
+	  org.label-schema.description="psn00bsdk in docker" \
+	  org.label-schema.version=$VERSION \
+	  org.label-schema.vendor="Bensuperpc" \
+	  org.label-schema.url="http://bensuperpc.com/" \
+	  org.label-schema.vcs-url="https://github.com/Bensuperpc/psn00bsdk-docker" \
+	  org.label-schema.vcs-ref=$VCS_REF \
+	  org.label-schema.docker.cmd="docker build -t bensuperpc/psn00bsdk -f Dockerfile ."
